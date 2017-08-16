@@ -1,0 +1,184 @@
+<div class="large-12 columns content-wrapper" codeHighlight>
+  <h1>Create Lesson</h1>
+  <form (ngSubmit)="addNewCourse(c)" #c="ngForm" class="create-course-form">
+    <div class="row panel-wrapper">
+      <div class="topic-form-wrapper" *ngIf="previewEnabled">
+        <div class="row">
+          <div class="large-12 columns">
+            <div [froalaView]="editorContent"></div>
+          </div>
+          <div style="display:flex;justify-content:center;align-items:center;width:100%;z-index:3">
+            <button type="button" (click)="previewEditor()" class="bttn-unite bttn-md bttn-royal end-preview-btn">Lesson Editor</button>
+          </div>
+        </div>
+      </div>
+      <div class="topic-form-wrapper" *ngIf="!previewEnabled">
+        <div class="row">
+          <div class="large-12 column bg-white">
+            <div class="content">
+              <h2 class="red">STEP 1: General Lesson Information</h2>
+            </div>
+          </div>
+          <div class="large-6 columns bg-white">
+            <div class="content">
+              <h3>Lesson Course Group</h3>
+              <div class="large-12">
+                <div class="form-group">
+                  <label>Course Subject</label>
+                  <select id="subject" [(ngModel)]="courseSubject" (change)="handleClearAllFiles()" name="subject" required ngModel>
+                  <option value disabled selected>Select a subject</option>
+                  <option *ngFor="let topic of getTopics() | async" value="{{topic?.name}}">{{topic?.name}}</option>
+            </select>
+                </div>
+                <div class="form-group">
+                  <label>Course Group: (optional)</label>
+                  <select id="group" [(ngModel)]="courseGroup" name="group" required ngModel>
+                  <!-- <option value disabled selected>Select a course group</option> -->
+                  <optgroup label="Angular">
+                    <option *ngFor="let group of angularSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="Firebase">
+                    <option *ngFor="let group of firebaseSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="Typescript">
+                    <option *ngFor="let group of tsSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="HTML5">
+                    <option *ngFor="let group of htmlSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="SCSS">
+                    <option *ngFor="let group of scssSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="CSS3">
+                    <option *ngFor="let group of cssSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="ES6">
+                    <option *ngFor="let group of es6Subs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="RXJS">
+                    <option *ngFor="let group of rxjsSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                  <optgroup label="Full Stack Projects">
+                    <option *ngFor="let group of fsSubs | async" value="{{group?.value}}">{{group?.value}}</option>
+                  </optgroup>
+                </select>
+                </div>
+                <div class="form-group">
+                  <label>Course Author</label>
+                  <input id="author" type="text" name="author" placeholder="Author" required ngModel/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="large-6 columns bg-white">
+            <div class="content">
+              <h3>General Course Info</h3>
+              <div class="large-12">
+                <div class="form-group">
+                  <label>Select Difficulty</label>
+                  <select id="difficulty" name="difficulty" required ngModel>
+              <option value disabled selected>Select a Difficulty</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+                </div>
+                <div class="form-group">
+                  <label>Lesson Title</label>
+                  <input id="title" type="text" name="title" [(ngModel)]="title" placeholder="title" required ngModel/>
+                </div>
+                <div class="form-group">
+                  <label>Video Duration</label>
+                  <input id="duration" type="text" name="duration" placeholder="Duration" required ngModel/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="large-12 columns bg-white">
+            <div class="content">
+              <h3>Course Images & Videos</h3>
+              <div class="large-12">
+                <div class="form-group">
+                  <label>Placeholder Image Url</label>
+                  <input id="img_url" type="text" name="img_url" placeholder="Image Url" required ngModel/>
+                </div>
+                <div class="form-group">
+                  <label>Video Url</label>
+                  <input id="video_url" type="text" name="video_url" placeholder="Video Url" required ngModel/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="large-12 columns bg-white">
+            <div class="content">
+              <h3>Course Long Description</h3>
+              <div class="large-12">
+                <div class="form-group">
+                  <label>Lesson Description</label>
+                  <textarea rows="6" id="description" type="text" name="description" autofocus="false" placeholder="Description" required ngModel></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="large-12 column bg-white">
+            <div class="content">
+              <h2 class="red">STEP 2: Upload lesson files</h2>
+            </div>
+          </div>
+          <div class="medium-12 columns bg-white">
+            <div class="content">
+              <div class="row">
+                <div class="medium-3 file-container column" *ngFor="let file of getFiles() | async">
+                  <div class="file-render-wrapper">
+                    <p class="icon-images"> {{file?.name}}</p>
+                    <img src="{{file?.url}}" />
+                    <div class="file-btns">
+                      <button type="button" (click)="deleteFile(file?.url, file?.$key, file?.name)">Delete</button>
+                      <button type="button" (click)="copyToClipboard(file?.url, $event)" appClipboard>Copy Path</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="medium-12 column dropzone-clear-all">
+                  <button type="button" (click)="handleClearAllFiles()">Clear All Files</button>
+                </div>
+              </div>
+              <div id="image-render" class="row" #test>
+                <app-spinner *ngIf="showSpinner"></app-spinner>
+                <h4 *ngIf="isSpinnerShowing()">Displaying Uploads</h4>
+              </div>
+              <div *ngIf="currentUpload">
+                <progress value="{{ currentUpload?.progress }}" max=100 min=1>0%</progress>
+                <p>Uploading: {{currentUpload?.name}} | {{currentUpload?.progress}}% Complete </p>
+              </div>
+              <h2>Drop Images</h2>
+              <div class="box">
+                <div class="dropZone" multiFileDrop (filesDropped)=handleFileDrop($event) (filesHovered)="dropZoneState($event)" [ngClass]="{'active' : dropZoneHovered}">
+                  <span class="icon-box-remove"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="large-12 column bg-white">
+            <div class="content">
+              <h2 class="red">STEP 3: Create Lesson</h2>
+            </div>
+          </div>
+          <div class="large-12 columns bg-white">
+            <div class="content">
+              <h3>Create Course Article</h3>
+              <div class="large-12">
+                <div [froalaEditor] [(froalaModel)]="editorContent" (change)="highlightCode()"></div>
+                <div class="form-group submit-btn">
+                  <div style="display:flex;justify-content:center;align-items:center;width:100%;z-index:3">
+                    <button type="button" (click)="previewCourse()" class="bttn-unite bttn-md bttn-royal preview-btn">Preview Lesson</button>
+                    <button type="submit" class="bttn-unite bttn-md bttn-royal submit-course">Submit Course</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
