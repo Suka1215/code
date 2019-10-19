@@ -1,0 +1,9 @@
+<div class="form-group">
+  <label [for]="inputId" class="hidden">{{label}}</label>
+  <input [ngClass]="{'invalid' : !inputControl.control.valid}" [minlength]="minLength" [maxlength]="maxLength"
+    class="form-control" [id]="inputId" [type]="type" [placeholder]="placeholder" [value]="value" [ngModel]="value"
+    [disabled]="isDisabled" #input (input)="onChange($event.target.value)" (blur)="onTouched()" [required]="isRequired">
+  <div *ngIf="inputControl.control.valid" class="animated fadeInRight md-input__icon">
+    <i class="material-icons">check_circle</i>
+  </div>
+</div>

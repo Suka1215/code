@@ -1,0 +1,17 @@
+ @import 'global';
+ @import 'variables';
+
+ .md-input {
+   position: relative;
+   display: block;
+
+   &__icon {
+     position: absolute;
+     top: 0;
+     right: 1em;
+     height: 100%;
+     display: flex;
+     align-items: center;
+     color: $default;
+   }
+ }
