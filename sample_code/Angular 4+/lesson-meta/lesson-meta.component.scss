@@ -1,0 +1,177 @@
+@import 'variables';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 1em 3em;
+
+  .categorie-items {
+    display: flex;
+
+    li {
+      margin-right: 10px;
+      padding: 10px 15px 10px 15px;
+      background: $default;
+      border-radius: 10px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+
+      .material-icons {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
+  .md-lesson-details-title {
+    margin-top: 50px;
+    font-size: 2em;
+    margin-bottom: 0px;
+  }
+
+  .md-lesson-details__add-category {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .md-lesson-details__section-title {
+    display: flex;
+
+    h3 {
+      flex: 1;
+      background: #f7f8fc;
+      color: #4813ea;
+      padding: 1em;
+      margin-bottom: 0;
+    }
+  }
+
+  .md-lesson-details-sub-title {
+    text-transform: inherit;
+    font-size: 1.2em;
+    color: $grey;
+  }
+
+  .md-lesson-details-difficulty {
+    display: flex;
+    justify-content: space-between;
+    margin: 2em;
+  }
+
+  .md-lesson-details {
+    display: flex;
+
+    &__form {
+      display: flex;
+      flex: 1;
+
+      &-content {
+        flex-basis: 75%;
+      }
+    }
+
+    &__submit {
+      position: absolute;
+      right: 2em;
+      background: $secondary;
+      border-radius: 10px;
+      color: white;
+    }
+
+    &__content {
+      margin: 2em 2em 0;
+      flex: 1;
+    }
+
+    &__section-one {
+      display: flex;
+    }
+
+    &__section-two {
+      padding: 0 2em;
+    }
+
+    &__header {
+      text-align: right;
+      font-size: 0.7em;
+    }
+
+    &__categories {
+      input {
+        margin-bottom: 1em;
+      }
+    }
+
+    &__info {
+      display: flex;
+      height: 100vh;
+      overflow-y: scroll;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 1.5em;
+      flex: 1;
+      border-left: 2px solid #ececec;
+
+      &-title {
+        color: $secondary;
+      }
+    }
+
+    &__overview {
+      list-style: none;
+
+      &-item {
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        padding: 0.5em 0;
+
+        &-title {
+          animation: fadeInRight 0.3s ease-in;
+          color: $secondary;
+          text-transform: uppercase;
+          font-weight: 700;
+        }
+
+        &-data {
+          animation: fadeInRight 0.5s ease-in;
+          color: $grey;
+          width: 100%;
+          word-break: break-all;
+        }
+
+        .categories {
+          display: flex;
+          flex-wrap: wrap;
+
+          .md-lesson-details__overview-item-data {
+            color: white;
+            flex-basis: 40%;
+            margin: 0.5em 0.5em 0.5em 0;
+            border-radius: 10px;
+            padding: 0.5em;
+            text-align: center;
+            background: $default;
+          }
+        }
+      }
+    }
+
+  }
+
+  .form-icon {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    top: 0;
+    right: 1em;
+  }
+
+}

@@ -1,0 +1,89 @@
+<div class="md-lesson-details">
+  <form class="md-lesson-details__form" (ngSubmit)="createDetails(f)" #f="ngForm">
+    <div class="md-lesson-details__form-content">
+      <div class="md-lesson-details-difficulty">
+        <md-toggle [toggleItems]="toggleItems" defaultValue="beginner" id="difficulty" name="difficulty" ngModel>Lesson
+          Difficulty
+        </md-toggle>
+        <md-header class="md-lesson-details__header">
+          <span class="md-lesson-details__sub-header">{{selectedCourse}}</span>
+        </md-header>
+      </div>
+      <div class="md-lesson-details__section-one">
+        <div class="content md-lesson-details__content">
+          <md-input inputId="subject" label="Lesson Subject" name="subject" placeholder="Lesson Subject"
+            [value]="selectedCourse" isDisabled=true [ngModel]="selectedCourse" isRequired=true>
+          </md-input>
+          <md-select [options]="subTopics" closeAll="true" placeHolder="Your development experience?"
+            class="md-lessons__select-skill flex-start" name="subTopic" ngModel>
+          </md-select>
+          <md-input inputId="instructor" minLength="5" maxLength="50" label="Lesson Instructor" name="instructor"
+            placeholder="Lesson instructor" ngModel isRequired=true>
+          </md-input>
+        </div>
+        <div class="content md-lesson-details__content">
+          <md-select [options]="accessControlOptions" closeAll="true" placeHolder="Access Control"
+            class="md-lessons__select-skill flex-start" name="accessControl" ngModel>
+          </md-select>
+          <md-input inputId="title" label="Lesson Title" name="title" placeholder="Lesson Title" ngModel
+            isRequired=true>
+          </md-input>
+          <md-input inputId="duration" label="Lesson Duration" name="duration" placeholder="Lesson Duration" ngModel
+            isRequired=true>
+          </md-input>
+        </div>
+      </div>
+      <div class="md-lesson-details__section-two">
+        <div class="content">
+          <label>Lesson Long Description</label>
+          <div class="form-group">
+            <textarea rows="12" id="description" type="text" name="description" minlength="100" maxlength="300"
+              #description="ngModel" autofocus="false" placeholder="Description" required ngModel></textarea>
+            <div class="animated fadeInRight form-icon">
+              <i *ngIf="!description.invalid" class="material-icons">check_circle</i>
+            </div>
+          </div>
+        </div>
+        <div class="md-lesson-details__categories-content">
+          <p class="check">
+            <strong>Lesson Stack (Use add button or press enter to add category)</strong>
+          </p>
+          <div class="form-group md-lesson-details__categories">
+            <input rows="6" id="categories" type="text" (keyup.enter)="addCategory(input.value, $event)"
+              autocomplete="off" name="categories" maxlength="15" autofocus="false" placeholder="Lesson Categories"
+              #input #categories>
+            <button (click)="addCategory(input.value, $event)" type="button"
+              class="bttn-unite bttn-md btn-purple md-lesson-details__add-category">
+              <i class="material-icons">library_add</i>
+            </button>
+          </div>
+          <ul class="categorie-items">
+            <li *ngFor="let category of getLessonCategories() | async">{{category}}
+              <i (click)="removeCategory(category)" class="material-icons">cancel</i>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <button *ngIf="f.valid" class="btn btn-lg btn-primary btn-block md-lesson-details__submit animated fadeInUp"
+        type="submit">Continue</button>
+    </div>
+    <div class="md-lesson-details__info">
+      <h2 class="md-lesson-details__info-title">Details Overview</h2>
+      <ul class="md-lesson-details__overview">
+        <ng-container *ngFor="let item of f.value | keyvalue; trackBy: trackByFn">
+          <li *ngIf="item.value" class="md-lesson-details__overview-item">
+            <span class="md-lesson-details__overview-item-title">{{item.key}}</span>
+            <span class="md-lesson-details__overview-item-data">{{item.value}}</span>
+          </li>
+        </ng-container>
+        <li *ngIf="lessonCategories.length" class="md-lesson-details__overview-item">
+          <span class="md-lesson-details__overview-item-title">Lesson Stack</span>
+          <div class="categories">
+            <span *ngFor="let category of lessonCategories | keyvalue; trackBy: trackByFn"
+              class="md-lesson-details__overview-item-data category">{{category.value}}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </form>
+</div>
