@@ -1,0 +1,184 @@
+service: minedropServerlessVOD
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: us-east-1
+  environment:
+    MD_RAW_VIDEO_BUCKET: minedrop-raw-videos
+
+custom:
+  NotificationDetails:
+    Email: mdsomaha@gmail.com
+
+functions:
+  processVOD:
+    handler: processVOD.processUploadedMedia
+    role: mdVODConvertMediaRole
+    name: mdVODUpload
+    description: Read uploaded minedrop video for VOD processing
+    runtime: python3.7
+    environment:
+      DESTINATION_BUCKET: minedrop-vod-media
+      MEDIA_CONVERT_ROLE: !GetAtt mdElementalMediaConvertRole.Arn
+      DESTINATION_PREFIX: output/
+      APPLICATION: minedrop
+      REGION: us-east-1
+    events:
+      - s3:
+          bucket: minedrop-vod-media
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: inputs/*
+            - suffix: .mp4
+
+resources:
+  Resources:
+    mdVODConvertMediaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: mdVODConvertMediaRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: minedropVODPolicy
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Sid: AllowMediaConversionLogs
+                  Effect: Allow
+                  Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  Resource:
+                    - 'Fn::Join':
+                      - ':'
+                      -
+                        - 'arn:aws:logs'
+                        - Ref: 'AWS::Region'
+                        - Ref: 'AWS::AccountId'
+                        - 'log-group:/aws/lambda/*:*:*'
+                - Sid: AllowMediaConversionOnCreate
+                  Effect: Allow
+                  Action:
+                  - s3:GetObject
+                  Resource: 'arn:aws:s3:::minedrop-vod-media/inputs'
+                - Sid: MediaConvertService
+                  Effect: Allow
+                  Action:
+                    - "mediaconvert:*"
+                  Resource:
+                    - "*"
+                -
+                  Sid: PassRole
+                  Effect: Allow
+                  Action:
+                    - iam:PassRole
+                  Resource:
+                    - !GetAtt mdElementalMediaConvertRole.Arn
+                -
+                  Sid: InputBucket
+                  Effect: Allow
+                  Action:
+                    - "s3:*"
+                  Resource: "*"
+    mdElementalMediaConvertRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: mdElementalMediaConvertRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            -
+              Effect: Allow
+              Principal:
+                Service:
+                  - "mediaconvert.amazonaws.com"
+                  - "mediaconvert.us-east-1.amazonaws.com"
+                  - "mediaconvert.ap-northeast-1.amazonaws.com"
+                  - "mediaconvert.ap-southeast-1.amazonaws.com"
+                  - "mediaconvert.ap-southeast-2.amazonaws.com"
+                  - "mediaconvert.eu-central-1.amazonaws.com"
+                  - "mediaconvert.eu-west-1.amazonaws.com"
+                  - "mediaconvert.us-east-1.amazonaws.com"
+                  - "mediaconvert.us-west-1.amazonaws.com"
+                  - "mediaconvert.us-west-2.amazonaws.com"
+              Action:
+                - sts:AssumeRole
+        Policies:
+          -
+            PolicyName: mdElementalMediaConvertRolePolicy
+            PolicyDocument:
+              Statement:
+                -
+                  Effect: Allow
+                  Action:
+                    - "s3:*"
+                  Resource:
+                    - "*"
+                -
+                  Effect: Allow
+                  Action:
+                    - "autoscaling:Describe*"
+                    - "cloudwatch:*"
+                    - "logs:*"
+                    - "sns:*"
+                  Resource:
+                    - "*"
+
+    NotificationTopicPolicy:
+      Type: AWS::SNS::TopicPolicy
+      Properties:
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: AllowCloudWatchEvents
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sns:Publish
+            Resource: "*"
+        Topics:
+          - !Ref SnsNotification
+
+    SnsNotification:
+      Type: AWS::SNS::Topic
+      Properties:
+        Subscription:
+          -
+            Endpoint: mdsomaha@gmail.com
+            Protocol: email
+
+    NotifyEventRule:
+      Type: AWS::Events::Rule
+      Properties:
+        Description: Get minedrop vod status of video being converted and sends SNS notification
+        State: "ENABLED"
+        EventPattern:
+          source:
+            - "aws.mediaconvert"
+          detail:
+            status:
+              - "SUBMITTED"
+              - "COMPLETE"
+              - "ERROR"
+            userMetadata:
+              application:
+                - minedrop
+        Targets:
+          -
+            Arn: !Ref SnsNotification
+            Id: "TargetSNS1"
+            InputTransformer:
+              InputPathsMap:
+                jobId: "$.detail.jobId"
+                region: "$.region"
+                status: "$.detail.status"
+              InputTemplate: '"Job <jobId> finished with status <status>. Job details: https://<region>.console.aws.amazon.com/mediaconvert/home?region=<region>#/jobs/summary/<jobId>"'
